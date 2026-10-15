@@ -154,6 +154,13 @@ class Message_Control(Message):
         """
         return self.message_create(role="system", content=content)
 
+    def message_clean(self):
+        """
+        清楚message
+        :return:
+        """
+        self.message = []
+
     def message_check_length(self):
         # TODO 检测token数量 类,待做
         return len(str(self.message))

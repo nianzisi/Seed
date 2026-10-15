@@ -24,6 +24,7 @@ class Env_get:
         self.model: str = os.environ["MODEL"]
         self.llm_env = {"stream": False if os.environ["stream"] == "False" else True,
                         "max_tokens": int(os.environ["max_tokens"]),
+                        # "response_format": {"type": "json_object"},
                         "temperature": float(os.environ["temperature"])}
         return None
 

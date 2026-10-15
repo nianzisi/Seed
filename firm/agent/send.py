@@ -4,7 +4,7 @@ import requests
 
 from agent.message import Message_Control
 from agent.chat import Chat
-from agent.navel.var import var
+from agent.tools.var import var
 from agent.tools.get_sql import Tool_data
 
 
@@ -102,7 +102,7 @@ class Send(Chat):
         if 'tool_calls' in assistant_msg:
             for _ in assistant_msg["tool_calls"]:
                 self.emit_tool(_)
-            self.send()
+            return self.send()
         return result
 
     def just_send_msg(self):
@@ -115,6 +115,13 @@ class Send(Chat):
             "headers": self.set_headers(),
             "json": self.set_payload()
         }  # 注意：payload 一般用 json 或 data 参数
+
+    def clean_message(self):
+        """
+        清楚历史消息
+        :return:
+        """
+        self._class.message_clean()
 
 
 if __name__ == "__main__":
@@ -137,6 +144,7 @@ if __name__ == "__main__":
     A.add_system(var(r"D:\Seed\firm\agent\navel\template\one.txt", {"这个是个占位符啊，喵~": "喵娘"}))
     replace_read2 = "你好啊，喵喵"
     A.add_ask(replace_read2)
+    A.clean_message()
     # A.send()
     print(A.send_message)
     print(A.just_send_msg())
