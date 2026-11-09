@@ -17,7 +17,7 @@ def var(path: str, key: dict) -> str:
 
             del_note_read = re.sub(r"#.+?#", "", read)
 
-            def replace(mach):
+            def replace(mach) -> str:
                 msg: str = mach.group(1).strip()
                 if "=" in msg:
                     _key, _value = msg.split("=", 1)
@@ -26,8 +26,14 @@ def var(path: str, key: dict) -> str:
                     msg = _key.strip()
                 if msg not in key:
                     raise ValueError(f"var的key缺少{msg}的值，无该键对")  # TODO 写入日志
-
-                return key.get(msg)
+                result = key.get(msg)
+                match result:
+                    case list() | dict():
+                        return str(result)
+                    case str():
+                        return result
+                    case _:
+                        raise Exception(f"var不接受{mach}该类型参数")
 
             replace_read = re.sub(r"\{\{([^}]+)}}", replace, del_note_read)
 
@@ -40,5 +46,5 @@ def var(path: str, key: dict) -> str:
 
 
 if __name__ == "__main__":
-    replace_read2 = var(r"D:\Seed\firm\agent\navel\template\one.txt", {"这个是个占位符啊，喵~": None})
+    replace_read2 = var(r"D:\Seed\firm\agent\navel\template\one.txt", {"这个是个占位符啊，喵~": [1]})
     print(replace_read2)

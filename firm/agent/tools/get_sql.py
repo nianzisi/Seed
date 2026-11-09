@@ -110,14 +110,14 @@ def tool(category: str = "tool"):
 
 # python类型转换jsonn类型的映射字典
 json_translation = {
-    str: "string",
-    int: "integer",
-    float: "number",
-    bool: "boolean",
-    None: "null",
-    list: "array",
-    tuple: "array",
-    dict: "object"
+    "str": "string",
+    "int": "integer",
+    "float": "number",
+    "bool": "boolean",
+    "None": "null",
+    "list": "array",
+    "tuple": "array",
+    "dict": "object"
 }
 
 
@@ -150,12 +150,23 @@ def func_org(func: object, name: str) -> dict:
         parameter_strip = parameter.strip()
         description = re.search(rf":param {re.escape(parameter_strip)}:(.+)", msg).group(1).strip()
         # print(str)
-        todo_json_translation = func.__annotations__.get(parameter_strip, "！@/空标志符/占位符￥%")
+        todo_json_translation = (func.__annotations__.get(parameter_strip, "！@/空标志符/占位符￥%"))
         if todo_json_translation == "！@/空标志符/占位符￥%":
             raise ValueError(f"{func}参数类型注释有空缺")
-        properties[parameter_strip] = {
-            "type": json_translation[todo_json_translation],
-            "description": description}
+        if "|" in str(todo_json_translation):
+            todo_json_translation = str(todo_json_translation)
+            print(todo_json_translation)
+            _type = []
+            split = re.split(r"\|", todo_json_translation)
+            for _ in split:
+                _type.append({"type": json_translation[_.strip()]})
+            properties[parameter_strip] = {
+                "anyOf": _type,
+                "description": description}
+        else:
+            properties[parameter_strip] = {
+                "type": json_translation[todo_json_translation.__name__],
+                "description": description}
 
     if "args" in properties.keys():
         properties["args"]["type"] = 'array'
@@ -185,7 +196,7 @@ def func_org(func: object, name: str) -> dict:
 
 
 if __name__ == "__main__":
-    @tool()
+    @tool("navel")
     def books_tool(name: str, B: int = 1) -> str:
         """
         当前是测试用例函数，当前为描述

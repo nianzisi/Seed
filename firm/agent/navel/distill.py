@@ -16,8 +16,7 @@ class Distill(Send):
             prompt = f.read()
         self.add_system(prompt)
         self.add_ask(content)
-        text = self.send().text
-        result = json.loads(text)["choices"][0]["message"]["content"]
+        result = self.send()
         with open(c_path, mode="w", encoding="utf-8") as f:
             f.write(result)
         return c_path

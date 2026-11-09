@@ -1,37 +1,25 @@
-import json
+from agent.navel.base import Base_navel
 
-from agent.message import Message_Control
-from agent.send import Send
-from agent.tools.var import var
+from agent.navel.tool.get_msg import get_outline
 
 
-class Outline_creat(Send):
+class Outline_creat(Base_navel):
 
-    def __init__(self, _Message: Message_Control = None, category: str = None):
-        super().__init__(_Message=_Message or Message_Control(), category=category)
+    def __init__(self):
+        super().__init__()
+        self.template = r"D:\Seed\firm\agent\navel\template\大纲.txt"
 
-    def template(self, path: str = r"D:\Seed\firm\agent\navel\template\大纲.txt", key=None):
-        with open(r"D:\Seed\firm\agent\navel\输出物\世界观.txt", mode="r", encoding="utf-8") as ff:
-            world = ff.read()
-            key["世界观"] = world
-        with open(r"D:\Seed\firm\agent\navel\输出物\角色卡\初始角色.json", mode="r", encoding="utf-8") as ff:
-            world = ff.read()
-            key["角色卡片"] = world
-        self.add_ask(var(path, key))
+    def key(self) -> dict:
+        key = {"世界观": self._open.world_background, "角色卡片": self._open.main_role}
+        return key
 
-    def run_(self) -> str:
-        self.template()
-        text = self.send().text
-        result = json.loads(text)["choices"][0]["message"]["content"]
-        with open(r"D:\Seed\firm\agent\navel\输出物\大纲.txt", mode="w", encoding="utf-8") as f:
-            try:
-                json.dump(json.loads(result), f, indent=2, ensure_ascii=False)
-            except Exception as e:
-                print(e)
-                f.seek(0)
-                f.write(result)
-        return result
+    def write_(self, outline=None):
+        if outline is None:
+            outline = self.auto_send()
+        self._open.write_outline(outline, Merge=True)
+        return self
 
 
 if __name__ == "__main__":
-    Outline_creat().run_()
+    A = Outline_creat().auto_template().send_message
+    print(A)

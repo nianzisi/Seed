@@ -79,7 +79,7 @@ class Send(Chat):
             return True
         raise ValueError("工具调用次数过多")
 
-    def send(self) -> object:
+    def send(self) -> str:
         """
         发送对话
         :return: request对象
@@ -96,14 +96,14 @@ class Send(Chat):
         )
 
         text = result.text
-        assistant_msg = json.loads(text)["choices"][0]["message"]
+        assistant_msg: dict = json.loads(text)["choices"][0]["message"]
         self._class.message_add_end(assistant_msg)
 
         if 'tool_calls' in assistant_msg:
             for _ in assistant_msg["tool_calls"]:
                 self.emit_tool(_)
             return self.send()
-        return result
+        return assistant_msg.get("content")
 
     def just_send_msg(self):
         # Todo 测试使用的临时组合方案
